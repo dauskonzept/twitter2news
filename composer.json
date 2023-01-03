@@ -8,6 +8,9 @@
 		"twitter",
 		"news"
 	],
+	"license": [
+		"GPL-2.0-or-later"
+	],
 	"authors": [
 		{
 			"name": "Sven Petersen",
