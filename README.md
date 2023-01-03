@@ -22,9 +22,7 @@ root, just run:
 1. Get your twitter API access tokens by following
    the [official documentation](https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twitter-api)
 2. Set your API access tokens in the Extension configuration/settings.
-3. Run the provided command <code>twitter2news:
-   import-tweets <username> <storagePid> [limit|25|max:100]</code> to import
-   tweets.
+3. Run the provided command to import tweets: <pre>twitter2news:import-tweets {username} {storagePid} [limit|25|max:100]</pre>
 
 ## Compatibility
 
