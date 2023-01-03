@@ -1,10 +1,12 @@
-# cat=Twitter API Data; type=string; label=Consumer Key
-consumer_key =
-# cat=Twitter API Data; type=string; label=Consumer Secret
-consumer_secret =
-# cat=Twitter API Data; type=string; label=Bearer Token
+# cat=General; type=string; label=API Key
+api_key =
+# cat=General; type=string; label=API Key Secret
+api_key_secret =
+# cat=General; type=string; label=Bearer Token
 bearer_token =
-# cat=Twitter API Data; type=string; label=Token identifier
-token_identifier =
-# cat=Twitter API Data; type=string; label=Token Secret
-token_secret =
+# cat=General; type=string; label=Access Token
+access_token =
+# cat=General; type=string; label=Access Token Secret
+access_token_secret =
+# cat=General; type=string; label=Local path to store downloaded files (relativ from project root)
+local_file_storage_path = /public/fileadmin/twitter/test

@@ -12,7 +12,8 @@ class PostPersistEvent
 
     private \stdClass $tweet;
 
-    public function __construct(NewsTweet $newsTweet, \stdClass $tweet) {
+    public function __construct(NewsTweet $newsTweet, \stdClass $tweet)
+    {
         $this->newsTweet = $newsTweet;
         $this->tweet = $tweet;
     }

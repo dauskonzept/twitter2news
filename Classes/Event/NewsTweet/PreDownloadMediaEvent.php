@@ -12,7 +12,8 @@ class PreDownloadMediaEvent
 
     private \stdClass $media;
 
-    public function __construct(NewsTweet $newsTweet, \stdClass $media) {
+    public function __construct(NewsTweet $newsTweet, \stdClass $media)
+    {
         $this->newsTweet = $newsTweet;
         $this->media = $media;
     }

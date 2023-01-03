@@ -11,20 +11,22 @@ declare(strict_types=1);
 
 namespace SvenPetersen\Twitter2News\Command;
 
+use Psr\EventDispatcher\EventDispatcherInterface;
 use SvenPetersen\Twitter2News\Client\TwitterApiClient;
 use SvenPetersen\Twitter2News\Domain\Model\NewsTweet;
 use SvenPetersen\Twitter2News\Domain\Repository\NewsTweetRepository;
+use SvenPetersen\Twitter2News\Event\NewsTweet\NotPersistedEvent;
 use SvenPetersen\Twitter2News\Event\NewsTweet\PostDownloadMediaEvent;
 use SvenPetersen\Twitter2News\Event\NewsTweet\PostPersistEvent;
 use SvenPetersen\Twitter2News\Event\NewsTweet\PreDownloadMediaEvent;
 use SvenPetersen\Twitter2News\Event\NewsTweet\PrePersistEvent;
 use SvenPetersen\Twitter2News\Service\EmojiRemover;
 use SvenPetersen\Twitter2News\Service\SlugService;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Resource\File;
@@ -40,33 +42,41 @@ class ImportTweetsCommand extends Command
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private mixed $username = '';
+
     /**
      * @var \stdClass[]
      */
     private array $mediaData = [];
 
-    private mixed $username = '';
+    /**
+     * @var array<string, string>
+     */
+    private array $extConf;
 
     public function __construct(
-        NewsTweetRepository         $newsRepository,
+        NewsTweetRepository $newsRepository,
         PersistenceManagerInterface $persistenceManager,
-        EventDispatcherInterface    $eventDispatcher
-    )
-    {
-        parent::__construct();
-
+        EventDispatcherInterface $eventDispatcher
+    ) {
         $this->newsRepository = $newsRepository;
         $this->persistenceManager = $persistenceManager;
         $this->eventDispatcher = $eventDispatcher;
+
+        /** @var ExtensionConfiguration $extensionConfiguration */
+        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
+        $this->extConf = $extensionConfiguration->get('twitter2news');
+
+        parent::__construct();
     }
 
     protected function configure(): void
     {
         $this
             ->setHelp('Imports tweets as ETX:news articles.')
-            ->addArgument('username', InputArgument::REQUIRED, 'The Twitter usename to import tweets from')
+            ->addArgument('username', InputArgument::REQUIRED, 'The Twitter username to import tweets from')
             ->addArgument('storagePid', InputArgument::REQUIRED, 'The PID where to save the news records')
-            ->addArgument('limit', InputArgument::OPTIONAL, 'The maximum number of tweets to import', 25);
+            ->addArgument('limit', InputArgument::OPTIONAL, 'The maximum number of tweets to import (max: 100)', 25);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -82,15 +92,19 @@ class ImportTweetsCommand extends Command
         $apiClient = new TwitterApiClient();
         $result = $apiClient->getLatestTweets($this->username, $limit);
 
+        if (property_exists($result, 'data') === false) {
+            return Command::FAILURE;
+        }
+
         $tweets = $result->data;
 
         // Prepare includes.media array
         if (property_exists($result, 'includes')) {
-            $this->mediaData = $this->processMediaData($result->includes->media);
+            $this->mediaData = $this->prepareMediaData($result->includes->media);
         }
 
         foreach ($tweets as $tweet) {
-            $this->upsertFromTweet($tweet, (int)$storagePid);
+            $this->processTweet($tweet, (int)$storagePid);
         }
 
         SlugService::populateEmptySlugsInCustomTable('tx_news_domain_model_news', 'path_segment');
@@ -98,20 +112,15 @@ class ImportTweetsCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function upsertFromTweet(\stdClass $tweet, int $storagePid): NewsTweet
+    private function processTweet(\stdClass $tweet, int $storagePid): NewsTweet
     {
-        $action = 'UPDATE';
-        $newsTweet = $this->newsRepository->findOneByTweetId($tweet->id);
+        $newsTweet = $this->newsRepository->findOneByTweetId($tweet->id) ?? new NewsTweet();
 
-        if ($newsTweet === null) {
-            $action = 'NEW';
+        $filteredText = EmojiRemover::filter($tweet->text);
 
-            $newsTweet = new NewsTweet();
-        }
-
-        $newsTweet->setTitle(substr(EmojiRemover::filter($tweet->text), 0, 255));
-        $newsTweet->setBodytext(EmojiRemover::filter($tweet->text));
-        $newsTweet->setTeaser(EmojiRemover::filter($tweet->text));
+        $newsTweet->setTitle(substr($filteredText, 0, 255));
+        $newsTweet->setBodytext($filteredText);
+        $newsTweet->setTeaser($filteredText);
         $newsTweet->setTweetId($tweet->id);
         $newsTweet->setTweetedBy($this->username);
         $newsTweet->setPid($storagePid);
@@ -122,17 +131,20 @@ class ImportTweetsCommand extends Command
             new PrePersistEvent($newsTweet, $tweet)
         );
 
-        $newsTweet = $event->getNewsTweet();
-
-        if ($action === 'NEW') {
-            $this->newsRepository->add($newsTweet);
-        } else {
-            $this->newsRepository->update($newsTweet);
+        if ($event->persistTweet() === false) {
+            return $newsTweet;
         }
 
+        $newsTweet = $event->getNewsTweet();
+        $isAlreadyImportedTweet = $newsTweet->getUid() !== null;
+
+        $this->newsRepository->add($newsTweet);
         $this->persistenceManager->persistAll();
 
-        if ($action === 'UPDATE') {
+        // Don't download tweets media again
+        if ($isAlreadyImportedTweet === true) {
+            $this->eventDispatcher->dispatch(new NotPersistedEvent($newsTweet, $tweet));
+
             return $newsTweet;
         }
 
@@ -157,7 +169,7 @@ class ImportTweetsCommand extends Command
      *
      * @return array<string, \stdClass>
      */
-    private function processMediaData(array $mediaIncludes): array
+    private function prepareMediaData(array $mediaIncludes): array
     {
         $return = [];
 
@@ -188,19 +200,7 @@ class ImportTweetsCommand extends Command
 
             $newsTweet = $event->getNewsTweet();
 
-            $mediaUrl = '';
-
-            switch ($mediaData->type) {
-                case 'video':
-                    $mediaUrl = $mediaData->preview_image_url;
-
-                    break;
-                case 'photo':
-                    $mediaUrl = $mediaData->url;
-
-                    break;
-                default:
-            }
+            $mediaUrl = $mediaData->preview_image_url ?? $mediaData->url;
 
             $fileExtension = array_reverse(explode('.', $mediaUrl))[0];
             $file = $this->downloadFile($mediaUrl, $fileExtension);
@@ -221,7 +221,8 @@ class ImportTweetsCommand extends Command
 
     private function downloadFile(string $fileUrl, string $fileExtension): File
     {
-        $directory = sprintf('%s/fileadmin/twitter2news', Environment::getPublicPath());
+        $relativeFilePath = $this->extConf['local_file_storage_path'];
+        $directory = sprintf('%s%s', Environment::getProjectPath(), $relativeFilePath);
         GeneralUtility::mkdir_deep($directory);
 
         $directory = str_replace('1:', 'uploads', $directory);
@@ -241,11 +242,10 @@ class ImportTweetsCommand extends Command
 
     private function addToFal(
         NewsTweet $newElement,
-        File      $file,
-        string    $tablename,
-        string    $fieldname
-    ): void
-    {
+        File $file,
+        string $tablename,
+        string $fieldname
+    ): void {
         $fields = [
             'pid' => $newElement->getPid(),
             'uid_local' => $file->getUid(),

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace SvenPetersen\Twitter2News\Domain\Repository;
 
-use SvenPetersen\Twitter2News\Domain\Model\NewsTweet;
 use GeorgRinger\News as GeorgRingerNews;
+use SvenPetersen\Twitter2News\Domain\Model\NewsTweet;
 
 class NewsTweetRepository extends GeorgRingerNews\Domain\Repository\NewsRepository
 {

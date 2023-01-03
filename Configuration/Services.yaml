@@ -7,10 +7,8 @@ services:
   SvenPetersen\Twitter2News\:
     resource: '../Classes/*'
 
-  # Commands
   SvenPetersen\Twitter2News\Command\ImportTweetsCommand:
     tags:
       - name: 'console.command'
         command: 'twitter2news:import-tweets'
-        description: 'Imports tweets as news entites'
-
+        description: 'Imports tweets for a given username as news entites'

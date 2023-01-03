@@ -21,20 +21,21 @@ class TwitterApiClient
 
     public function __construct()
     {
-        $this->twitter = $this->configureClient();
+        $this->twitter = $this->getTwitterClient();
     }
 
-    private function configureClient(): BirdElephant
+    private function getTwitterClient(): BirdElephant
     {
-        $extConf = GeneralUtility::makeInstance(ExtensionConfiguration::class)
-            ->get('twitter2news');
+        /** @var ExtensionConfiguration $extensionConfiguration */
+        $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
+        $extConf = $extensionConfiguration->get('twitter2news');
 
         $credentials = [
-            'consumer_key' => $extConf['consumer_key'],
-            'consumer_secret' => $extConf['consumer_secret'],
+            'consumer_key' => $extConf['api_key'],
+            'consumer_secret' => $extConf['api_key_secret'],
             'bearer_token' => $extConf['bearer_token'],
-            'token_identifier' => $extConf['token_identifier'],
-            'token_secret' => $extConf['token_secret'],
+            'token_identifier' => $extConf['access_token'],
+            'token_secret' => $extConf['access_token_secret'],
         ];
 
         return new BirdElephant($credentials);

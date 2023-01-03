@@ -6,16 +6,11 @@ namespace SvenPetersen\Twitter2News\Event\NewsTweet;
 
 use SvenPetersen\Twitter2News\Domain\Model\NewsTweet;
 
-class PrePersistEvent
+class NotPersistedEvent
 {
     private NewsTweet $newsTweet;
 
     private \stdClass $tweet;
-
-    /**
-     * Used to control if given Tweet should be imported/persisted
-     */
-    private bool $persistTweet = true;
 
     public function __construct(NewsTweet $newsTweet, \stdClass $tweet)
     {
@@ -28,25 +23,8 @@ class PrePersistEvent
         return $this->newsTweet;
     }
 
-    public function setNewsTweet(NewsTweet $newsTweet): void
-    {
-        $this->newsTweet = $newsTweet;
-    }
-
     public function getTweet(): \stdClass
     {
         return $this->tweet;
-    }
-
-    public function persistTweet(): bool
-    {
-        return $this->persistTweet;
-    }
-
-    public function doNotPersistTweet(): self
-    {
-        $this->persistTweet = false;
-
-        return $this;
     }
 }

@@ -13,8 +13,18 @@ namespace SvenPetersen\Twitter2News\Service;
 
 class EmojiRemover
 {
-    public static function filter(string $string = ''): string
+    /**
+     * This function removes emoji from string
+     * Used to filter Tweets for emoji characters.
+     */
+    public static function filter(string $text): string
     {
-        return preg_replace('/\xEE[\x80-\xBF][\x80-\xBF]|\xEF[\x81-\x83][\x80-\xBF]/', '', $string);
+        $text = iconv('UTF-8', 'ISO-8859-15//IGNORE', $text);
+        assert(is_string($text));
+
+        $text = preg_replace('/\s+/', ' ', $text);
+        assert(is_string($text));
+
+        return (string)iconv('ISO-8859-15', 'UTF-8', $text);
     }
 }

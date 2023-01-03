@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace SvenPetersen\Twitter2News\Service;
 
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -21,10 +23,13 @@ class SlugService
     {
         /* @var $connection \TYPO3\CMS\Core\Database\Connection */
         $connection = GeneralUtility::makeInstance(ConnectionPool::class)->getConnectionForTable($tableName);
+
         /* @var $queryBuilder \TYPO3\CMS\Core\Database\Query\QueryBuilder */
         $queryBuilder = $connection->createQueryBuilder();
+
         /* @var $querBuilder \TYPO3\CMS\Core\Database\Query\QueryBuilder */
         $queryBuilder->getRestrictions()->removeAll()->add(GeneralUtility::makeInstance(DeletedRestriction::class));
+
         $statement = $queryBuilder
             ->select('*')
             ->from($tableName)
