@@ -132,6 +132,8 @@ class ImportTweetsCommand extends Command
         );
 
         if ($event->persistTweet() === false) {
+            $this->eventDispatcher->dispatch(new NotPersistedEvent($newsTweet, $tweet));
+            
             return $newsTweet;
         }
 
@@ -143,8 +145,6 @@ class ImportTweetsCommand extends Command
 
         // Don't download tweets media again
         if ($isAlreadyImportedTweet === true) {
-            $this->eventDispatcher->dispatch(new NotPersistedEvent($newsTweet, $tweet));
-
             return $newsTweet;
         }
 
