@@ -1,3 +1,12 @@
+[![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
+[![TYPO3 10](https://img.shields.io/badge/TYPO3-10-orange.svg)](https://get.typo3.org/version/10)
+[![TYPO3 11](https://img.shields.io/badge/TYPO3-11-orange.svg)](https://get.typo3.org/version/11)
+[![Latest Stable Version](http://poser.pugx.org/svenpetersen/twitter2news/v)](https://packagist.org/packages/svenpetersen/twitter2news)
+[![Total Downloads](http://poser.pugx.org/svenpetersen/twitter2news/downloads)](https://packagist.org/packages/svenpetersen/twitter2news)
+[![Latest Unstable Version](http://poser.pugx.org/svenpetersen/twitter2news/v/unstable)](https://packagist.org/packages/svenpetersen/twitter2news)
+[![License](http://poser.pugx.org/svenpetersen/twitter2news/license)](https://packagist.org/packages/svenpetersen/twitter2news)
+[![PHP Version Require](http://poser.pugx.org/svenpetersen/twitter2news/require/php)](https://packagist.org/packages/svenpetersen/twitter2news)
+
 TYPO3 Extension "twitter2news"
 =================================
 
