@@ -21,7 +21,9 @@
 		"php": ">=7.4",
 		"coderjerk/bird-elephant": "^0.5.0",
 		"georgringer/news": "^9.0 || ^10.0",
-		"typo3/cms-core": "^11.5"
+		"symfony/console": "^5.4",
+		"typo3/cms-core": "^11.5",
+		"typo3/cms-extbase": "^11.5"
 	},
 	"require-dev": {
 		"ergebnis/composer-normalize": "^2.24",
