@@ -1,0 +1,10 @@
+# cat=Twitter API Data; type=string; label=Consumer Key
+consumer_key =
+# cat=Twitter API Data; type=string; label=Consumer Secret
+consumer_secret =
+# cat=Twitter API Data; type=string; label=Bearer Token
+bearer_token =
+# cat=Twitter API Data; type=string; label=Token identifier
+token_identifier =
+# cat=Twitter API Data; type=string; label=Token Secret
+token_secret =

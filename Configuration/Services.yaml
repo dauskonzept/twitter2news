@@ -1,0 +1,16 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  SvenPetersen\Twitter2News\:
+    resource: '../Classes/*'
+
+  # Commands
+  SvenPetersen\Twitter2News\Command\ImportTweetsCommand:
+    tags:
+      - name: 'console.command'
+        command: 'twitter2news:import-tweets'
+        description: 'Imports tweets as news entites'
+
