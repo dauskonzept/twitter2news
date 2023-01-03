@@ -69,7 +69,6 @@ jobs:
         versions:
           - { typo3: 11, testing: 6, php: 7.4 }
           - { typo3: 11, testing: 6, php: 8.0 }
-          - { typo3: 10, testing: 6, php: 7.4 }
     name: "Run tests with PHP ${{ matrix.versions.php }}
           using TYPO3 ${{ matrix.versions.typo3 }}
           with testing framework version ${{ matrix.versions.testing }}"

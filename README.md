@@ -44,9 +44,9 @@ Setup a cronjob/scheduler task to regularly import new tweets.
 
 ## Compatibility
 
-| Version | TYPO3       | News       | PHP        | Support/Development                  |
-|---------|-------------|------------|------------|--------------------------------------|
-| 1.x     | 10.4 - 11.5 | 9.0 - 10.x | 7.4 - 8.0️ | Features, Bugfixes, Security Updates |
+| Version | TYPO3 | News       | PHP        | Support/Development                  |
+|---------|-------|------------|------------|--------------------------------------|
+| 1.x     | 11.5  | 9.0 - 10.x | 7.4 - 8.0️ | Features, Bugfixes, Security Updates |
 
 ## Funtionalities
 
