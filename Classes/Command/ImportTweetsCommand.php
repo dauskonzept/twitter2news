@@ -42,7 +42,7 @@ class ImportTweetsCommand extends Command
 
     private EventDispatcherInterface $eventDispatcher;
 
-    private mixed $username = '';
+    private string $username = '';
 
     /**
      * @var \stdClass[]
