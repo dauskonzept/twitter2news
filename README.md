@@ -59,7 +59,7 @@ __Arguments:__
 ### Local path to save downloaded files
 
 By default all images/videos in imported posts are saved in <code>
-/public/fileadmin/instagram</code>
+/public/fileadmin/twitter2news</code>
 You can change this path via the Extensions settings <code>
 local_file_storage_path</code> option.
 

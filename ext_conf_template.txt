@@ -9,4 +9,4 @@ access_token =
 # cat=General; type=string; label=Access Token Secret
 access_token_secret =
 # cat=General; type=string; label=Local path to store downloaded files (relativ from project root)
-local_file_storage_path = /public/fileadmin/twitter/test
+local_file_storage_path = /public/fileadmin/twitter2news
