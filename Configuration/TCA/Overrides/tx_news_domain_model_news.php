@@ -3,9 +3,9 @@
 defined('TYPO3') or die();
 
 $GLOBALS['TCA']['tx_news_domain_model_news']['columns']['type']['config']['items']['1672691843'] =
-    ['Tweet', 1672691843];
+    ['Tweet', 1672691843, 'actions-brand-twitter'];
 
-$GLOBALS['TCA']['tx_news_domain_model_news']['types']['1672691843'] = $GLOBALS['TCA']['tx_news_domain_model_news']['types']['0'];
+$GLOBALS['TCA']['tx_news_domain_model_news']['types']['1672691843'] = $GLOBALS['TCA']['tx_news_domain_model_news']['types']['2'];
 
 $fields = [
     'tweet_id' => [
