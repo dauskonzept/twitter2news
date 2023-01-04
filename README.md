@@ -36,7 +36,7 @@ root, just run:
    the [official documentation](https://developer.twitter.com/en/docs/twitter-api/getting-started/about-twitter-api)
 2. Enter your API access tokens in the Extension configuration/settings.
 3. Run the provided command to import tweets: <pre>twitter2news:import-tweets
-   {username} {storagePid} [limit|25|max:100]</pre>
+   {username} {storagePid} [limit|25|max:100] [--no-retweets]</pre>
 
 __Recommended__:
 
@@ -55,15 +55,16 @@ Setup a cronjob/scheduler task to regularly import new tweets.
 This extension comes with a command to import tweets of a given twitter handle.
 It is recommended to set this command up to run regularly - e.g. once a day.
 
-<pre>twitter2news:import-tweets {username} {storagePid} [limit|25|max:100]</pre>
+<pre>twitter2news:import-tweets {username} {storagePid} [limit|25|max:100] [--no-retweets]</pre>
 
 __Arguments:__
 
-| Name       | Description                                                                      |
-|------------|----------------------------------------------------------------------------------|
-| username   | The users twitter handle to import tweets from                                   |
-| storagePid | The PID to save the imported tweets                                              |
-| limit      | The maximum number of latest tweets to import (Optional. Default: 25 / max: 100) |
+| Name          | Description                                                                      |
+|---------------|----------------------------------------------------------------------------------|
+| username      | The users twitter handle to import tweets from                                   |
+| storagePid    | The PID to save the imported tweets                                              |
+| limit         | The maximum number of latest tweets to import (Optional. Default: 25 / max: 100) |
+| --no-retweets | Exclude retweets from import (Optional)                                          |
 
 ### Local path to save downloaded files
 
