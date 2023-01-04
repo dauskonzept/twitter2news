@@ -1,11 +1,11 @@
 [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)
 [![TYPO3 10](https://img.shields.io/badge/TYPO3-10-orange.svg)](https://get.typo3.org/version/10)
 [![TYPO3 11](https://img.shields.io/badge/TYPO3-11-orange.svg)](https://get.typo3.org/version/11)
-[![Latest Stable Version](http://poser.pugx.org/dauskonzept/twitter2news/v)](https://packagist.org/packages/dauskonzept/twitter2news)
-[![Total Downloads](http://poser.pugx.org/dauskonzept/twitter2news/downloads)](https://packagist.org/packages/dauskonzept/twitter2news)
-[![Latest Unstable Version](http://poser.pugx.org/dauskonzept/twitter2news/v/unstable)](https://packagist.org/packages/dauskonzept/twitter2news)
-[![License](http://poser.pugx.org/dauskonzept/twitter2news/license)](https://packagist.org/packages/dauskonzept/twitter2news)
-[![PHP Version Require](http://poser.pugx.org/dauskonzept/twitter2news/require/php)](https://packagist.org/packages/dauskonzept/twitter2news)
+[![Latest Stable Version](http://poser.pugx.org/dskzpt/twitter2news/v)](https://packagist.org/packages/dskzpt/twitter2news)
+[![Total Downloads](http://poser.pugx.org/dskzpt/twitter2news/downloads)](https://packagist.org/packages/dskzpt/twitter2news)
+[![Latest Unstable Version](http://poser.pugx.org/dskzpt/twitter2news/v/unstable)](https://packagist.org/packages/dskzpt/twitter2news)
+[![License](http://poser.pugx.org/dskzpt/twitter2news/license)](https://packagist.org/packages/dskzpt/twitter2news)
+[![PHP Version Require](http://poser.pugx.org/dskzpt/twitter2news/require/php)](https://packagist.org/packages/dskzpt/twitter2news)
 
 TYPO3 Extension "twitter2news"
 =================================
