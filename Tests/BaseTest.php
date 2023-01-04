@@ -8,7 +8,7 @@
  */
 declare(strict_types=1);
 
-namespace SvenPetersen\Instagram\Tests;
+namespace DSKZPT\Instagram\Tests;
 
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\TestingFramework\Core\Functional\FunctionalTestCase;

@@ -9,20 +9,20 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-namespace SvenPetersen\Twitter2News\Command;
+namespace DSKZPT\Twitter2News\Command;
 
+use DSKZPT\Twitter2News\Client\TwitterApiClient;
+use DSKZPT\Twitter2News\Domain\Model\NewsTweet;
+use DSKZPT\Twitter2News\Domain\Repository\NewsTweetRepository;
+use DSKZPT\Twitter2News\Event\NewsTweet\ExcludedRetweetEvent;
+use DSKZPT\Twitter2News\Event\NewsTweet\NotPersistedEvent;
+use DSKZPT\Twitter2News\Event\NewsTweet\PostDownloadMediaEvent;
+use DSKZPT\Twitter2News\Event\NewsTweet\PostPersistEvent;
+use DSKZPT\Twitter2News\Event\NewsTweet\PreDownloadMediaEvent;
+use DSKZPT\Twitter2News\Event\NewsTweet\PrePersistEvent;
+use DSKZPT\Twitter2News\Service\EmojiRemover;
+use DSKZPT\Twitter2News\Service\SlugService;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use SvenPetersen\Twitter2News\Client\TwitterApiClient;
-use SvenPetersen\Twitter2News\Domain\Model\NewsTweet;
-use SvenPetersen\Twitter2News\Domain\Repository\NewsTweetRepository;
-use SvenPetersen\Twitter2News\Event\NewsTweet\ExcludedRetweetEvent;
-use SvenPetersen\Twitter2News\Event\NewsTweet\NotPersistedEvent;
-use SvenPetersen\Twitter2News\Event\NewsTweet\PostDownloadMediaEvent;
-use SvenPetersen\Twitter2News\Event\NewsTweet\PostPersistEvent;
-use SvenPetersen\Twitter2News\Event\NewsTweet\PreDownloadMediaEvent;
-use SvenPetersen\Twitter2News\Event\NewsTweet\PrePersistEvent;
-use SvenPetersen\Twitter2News\Service\EmojiRemover;
-use SvenPetersen\Twitter2News\Service\SlugService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -44,6 +44,8 @@ class ImportTweetsCommand extends Command
 
     private EventDispatcherInterface $eventDispatcher;
 
+    private SlugService $slugService;
+
     private string $username = '';
 
     /**
@@ -61,11 +63,13 @@ class ImportTweetsCommand extends Command
     public function __construct(
         NewsTweetRepository $newsRepository,
         PersistenceManagerInterface $persistenceManager,
-        EventDispatcherInterface $eventDispatcher
+        EventDispatcherInterface $eventDispatcher,
+        SlugService $slugService
     ) {
         $this->newsRepository = $newsRepository;
         $this->persistenceManager = $persistenceManager;
         $this->eventDispatcher = $eventDispatcher;
+        $this->slugService = $slugService;
 
         /** @var ExtensionConfiguration $extensionConfiguration */
         $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
@@ -113,8 +117,6 @@ class ImportTweetsCommand extends Command
             $this->processTweet($tweet, (int)$storagePid);
         }
 
-        SlugService::populateEmptySlugsInCustomTable('tx_news_domain_model_news', 'path_segment');
-
         return Command::SUCCESS;
     }
 
@@ -129,14 +131,24 @@ class ImportTweetsCommand extends Command
         $newsTweet = $this->newsRepository->findOneByTweetId($tweet->id) ?? new NewsTweet();
 
         $filteredText = EmojiRemover::filter($tweet->text);
+        $pathSegment = $this->slugService->generateSlugUniqueInPid(
+            [
+                'title' => $filteredText,
+            ],
+            $storagePid,
+            'tx_news_domain_model_news',
+            'path_segment'
+        );
 
         $newsTweet->setTitle(substr($filteredText, 0, 255));
+        $newsTweet->setPathSegment($pathSegment);
         $newsTweet->setBodytext($filteredText);
         $newsTweet->setTeaser($filteredText);
         $newsTweet->setTweetId($tweet->id);
         $newsTweet->setTweetedBy($this->username);
         $newsTweet->setPid($storagePid);
         $newsTweet->setDatetime(new \DateTime($tweet->created_at));
+        $newsTweet->setExternalurl(sprintf('https://twitter.com/twitter/status/%s', $tweet->id));
 
         /** @var PrePersistEvent $event */
         $event = $this->eventDispatcher->dispatch(

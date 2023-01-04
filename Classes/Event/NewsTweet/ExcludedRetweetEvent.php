@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SvenPetersen\Twitter2News\Event\NewsTweet;
+namespace DSKZPT\Twitter2News\Event\NewsTweet;
 
 class ExcludedRetweetEvent
 {

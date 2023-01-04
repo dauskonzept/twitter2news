@@ -7,5 +7,5 @@ $GLOBALS['TYPO3_CONF_VARS']['EXT']['news']['classes']['Domain/Model/News']['twit
 \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\Object\Container\Container::class)
     ->registerImplementation(
         \GeorgRinger\News\Domain\Model\News::class,
-        \SvenPetersen\Twitter2News\Domain\Model\NewsTweet::class
+        \DSKZPT\Twitter2News\Domain\Model\NewsTweet::class
     );

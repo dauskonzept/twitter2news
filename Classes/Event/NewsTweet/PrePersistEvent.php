@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace SvenPetersen\Twitter2News\Event\NewsTweet;
+namespace DSKZPT\Twitter2News\Event\NewsTweet;
 
-use SvenPetersen\Twitter2News\Domain\Model\NewsTweet;
+use DSKZPT\Twitter2News\Domain\Model\NewsTweet;
 
 class PrePersistEvent
 {
