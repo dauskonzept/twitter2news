@@ -4,7 +4,7 @@ Hey, great you want to contribute to ``twitter2news``.
 
 Submitting feedback
 ===================
-Please report feedback, bugs and feature requests on [GitHub](https://github.com/svenpet90/twitter2news/issues)
+Please report feedback, bugs and feature requests on [GitHub](https://github.com/dauskonzept/twitter2news/issues)
 Note, that the GitHub issue tracker is not a support forum.
 
 I'm always willing to help user of ``twitter2news`` with potential problems, but please understand, that I will
@@ -14,7 +14,7 @@ commercial support, please contact me by email.
 Submitting new features
 =======================
 Not every feature is relevant for the bulk of ``twitter2news`` users, so please discuss new features in the
-issue tracker on [GitHub](https://github.com/svenpet90/twitter2news/issues) before starting to code.
+issue tracker on [GitHub](https://github.com/dauskonzept/twitter2news/issues) before starting to code.
 
 Submitting changes
 ==================
