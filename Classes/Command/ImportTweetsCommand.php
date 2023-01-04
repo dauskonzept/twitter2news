@@ -81,7 +81,7 @@ class ImportTweetsCommand extends Command
             ->addArgument('username', InputArgument::REQUIRED, 'The Twitter username to import tweets from')
             ->addArgument('storagePid', InputArgument::REQUIRED, 'The PID where to save the news records')
             ->addArgument('limit', InputArgument::OPTIONAL, 'The maximum number of tweets to import (max: 100)', 25)
-            ->addOption('no-retweets', null, InputOption::VALUE_OPTIONAL, 'Weather to include retweets in the import', false);
+            ->addOption('no-retweets', null, InputOption::VALUE_NONE, 'Weather to include retweets in the import');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -89,7 +89,7 @@ class ImportTweetsCommand extends Command
         $this->username = $input->getArgument('username');
         $limit = (int)$input->getArgument('limit');
         $storagePid = $input->getArgument('storagePid');
-        $this->excludeRetweets = $input->getOption('no-retweets') ?? true;
+        $this->excludeRetweets = $input->getOption('no-retweets');
 
         if (is_numeric($storagePid) === false) {
             throw new \InvalidArgumentException(sprintf('The StoragePid argument must be numeric. "%s" given.', $storagePid));
