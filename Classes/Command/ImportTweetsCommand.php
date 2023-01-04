@@ -15,6 +15,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use SvenPetersen\Twitter2News\Client\TwitterApiClient;
 use SvenPetersen\Twitter2News\Domain\Model\NewsTweet;
 use SvenPetersen\Twitter2News\Domain\Repository\NewsTweetRepository;
+use SvenPetersen\Twitter2News\Event\NewsTweet\ExcludedRetweetEvent;
 use SvenPetersen\Twitter2News\Event\NewsTweet\NotPersistedEvent;
 use SvenPetersen\Twitter2News\Event\NewsTweet\PostDownloadMediaEvent;
 use SvenPetersen\Twitter2News\Event\NewsTweet\PostPersistEvent;
@@ -25,6 +26,7 @@ use SvenPetersen\Twitter2News\Service\SlugService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Core\Environment;
@@ -54,6 +56,8 @@ class ImportTweetsCommand extends Command
      */
     private array $extConf;
 
+    private bool $excludeRetweets = false;
+
     public function __construct(
         NewsTweetRepository $newsRepository,
         PersistenceManagerInterface $persistenceManager,
@@ -76,7 +80,8 @@ class ImportTweetsCommand extends Command
             ->setHelp('Imports tweets as ETX:news articles.')
             ->addArgument('username', InputArgument::REQUIRED, 'The Twitter username to import tweets from')
             ->addArgument('storagePid', InputArgument::REQUIRED, 'The PID where to save the news records')
-            ->addArgument('limit', InputArgument::OPTIONAL, 'The maximum number of tweets to import (max: 100)', 25);
+            ->addArgument('limit', InputArgument::OPTIONAL, 'The maximum number of tweets to import (max: 100)', 25)
+            ->addOption('no-retweets', null, InputOption::VALUE_OPTIONAL, 'Weather to include retweets in the import', false);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -84,6 +89,7 @@ class ImportTweetsCommand extends Command
         $this->username = $input->getArgument('username');
         $limit = (int)$input->getArgument('limit');
         $storagePid = $input->getArgument('storagePid');
+        $this->excludeRetweets = $input->getOption('no-retweets') ?? true;
 
         if (is_numeric($storagePid) === false) {
             throw new \InvalidArgumentException(sprintf('The StoragePid argument must be numeric. "%s" given.', $storagePid));
@@ -112,8 +118,14 @@ class ImportTweetsCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function processTweet(\stdClass $tweet, int $storagePid): NewsTweet
+    private function processTweet(\stdClass $tweet, int $storagePid): ?NewsTweet
     {
+        if ($this->excludeRetweets && $this->isRetweet($tweet)) {
+            $this->eventDispatcher->dispatch(new ExcludedRetweetEvent($tweet));
+
+            return null;
+        }
+
         $newsTweet = $this->newsRepository->findOneByTweetId($tweet->id) ?? new NewsTweet();
 
         $filteredText = EmojiRemover::filter($tweet->text);
@@ -264,5 +276,10 @@ class ImportTweetsCommand extends Command
 
         $databaseConn = $connectionPool->getConnectionForTable('tx_news_domain_model_news');
         $databaseConn->insert('sys_file_reference', $fields);
+    }
+
+    private function isRetweet(\stdClass $tweet): bool
+    {
+        return substr($tweet->text, 0, 3) === 'RT ';
     }
 }
