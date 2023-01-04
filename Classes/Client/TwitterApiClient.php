@@ -9,7 +9,7 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-namespace SvenPetersen\Twitter2News\Client;
+namespace DSKZPT\Twitter2News\Client;
 
 use Coderjerk\BirdElephant\BirdElephant;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;

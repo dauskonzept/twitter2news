@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace SvenPetersen\Twitter2News\Domain\Model;
+namespace DSKZPT\Twitter2News\Domain\Model;
 
 use GeorgRinger\News as GeorgRingerNews;
 

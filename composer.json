@@ -1,7 +1,8 @@
 {
-	"name": "svenpetersen/twitter2news",
+	"name": "dskzpt/twitter2news",
 	"type": "typo3-cms-extension",
 	"description": "TYPO3 extension to import tweets as EXT:news articles",
+	"homepage": "https://www.dauskonzept.de",
 	"keywords": [
 		"TYPO3",
 		"extension",
@@ -14,7 +15,7 @@
 	"authors": [
 		{
 			"name": "Sven Petersen",
-			"email": "sven_harders@gmx.de"
+			"email": "sp@dauskonzept.de"
 		}
 	],
 	"require": {
@@ -35,12 +36,12 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"SvenPetersen\\Twitter2News\\": "Classes/"
+			"DSKZPT\\Twitter2News\\": "Classes/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"SvenPetersen\\Twitter2News\\Tests\\": "Tests/"
+			"DSKZPT\\Twitter2News\\Tests\\": "Tests/"
 		}
 	},
 	"config": {

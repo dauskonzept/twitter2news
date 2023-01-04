@@ -9,7 +9,7 @@ declare(strict_types=1);
  * LICENSE.txt file that was distributed with this source code.
  */
 
-namespace SvenPetersen\Twitter2News\Service;
+namespace DSKZPT\Twitter2News\Service;
 
 class EmojiRemover
 {
