@@ -22,6 +22,8 @@ use DSKZPT\Twitter2News\Event\NewsTweet\PreDownloadMediaEvent;
 use DSKZPT\Twitter2News\Event\NewsTweet\PrePersistEvent;
 use DSKZPT\Twitter2News\Service\EmojiRemover;
 use DSKZPT\Twitter2News\Service\SlugService;
+use GeorgRinger\News\Domain\Model\Category;
+use GeorgRinger\News\Domain\Repository\CategoryRepository;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -39,6 +41,8 @@ use TYPO3\CMS\Extbase\Persistence\PersistenceManagerInterface;
 class ImportTweetsCommand extends Command
 {
     private NewsTweetRepository $newsRepository;
+
+    private CategoryRepository $categoryRepository;
 
     private PersistenceManagerInterface $persistenceManager;
 
@@ -60,13 +64,20 @@ class ImportTweetsCommand extends Command
 
     private bool $excludeRetweets = false;
 
+    /**
+     * @var array<int, string>
+     */
+    private array $categories = [];
+
     public function __construct(
         NewsTweetRepository $newsRepository,
+        CategoryRepository $categoryRepository,
         PersistenceManagerInterface $persistenceManager,
         EventDispatcherInterface $eventDispatcher,
         SlugService $slugService
     ) {
         $this->newsRepository = $newsRepository;
+        $this->categoryRepository = $categoryRepository;
         $this->persistenceManager = $persistenceManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->slugService = $slugService;
@@ -85,7 +96,8 @@ class ImportTweetsCommand extends Command
             ->addArgument('username', InputArgument::REQUIRED, 'The Twitter username to import tweets from')
             ->addArgument('storagePid', InputArgument::REQUIRED, 'The PID where to save the news records')
             ->addArgument('limit', InputArgument::OPTIONAL, 'The maximum number of tweets to import (max: 100)', 25)
-            ->addOption('no-retweets', null, InputOption::VALUE_NONE, 'Weather to include retweets in the import');
+            ->addOption('no-retweets', null, InputOption::VALUE_NONE, 'Weather to include retweets in the import')
+            ->addOption('category', null, InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'One or more news category uids to save the news records');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -94,6 +106,7 @@ class ImportTweetsCommand extends Command
         $limit = (int)$input->getArgument('limit');
         $storagePid = $input->getArgument('storagePid');
         $this->excludeRetweets = $input->getOption('no-retweets');
+        $this->categories = $input->getOption('category');
 
         if (is_numeric($storagePid) === false) {
             throw new \InvalidArgumentException(sprintf('The StoragePid argument must be numeric. "%s" given.', $storagePid));
@@ -149,6 +162,16 @@ class ImportTweetsCommand extends Command
         $newsTweet->setPid($storagePid);
         $newsTweet->setDatetime(new \DateTime($tweet->created_at));
         $newsTweet->setExternalurl(sprintf('https://twitter.com/twitter/status/%s', $tweet->id));
+
+        // region Set categories
+        foreach ($this->categories as $categoryUid) {
+            $category = $this->categoryRepository->findByUid((int)$categoryUid);
+
+            if ($category instanceof Category) {
+                $newsTweet->addCategory($category);
+            }
+        }
+        // endregion
 
         /** @var PrePersistEvent $event */
         $event = $this->eventDispatcher->dispatch(
