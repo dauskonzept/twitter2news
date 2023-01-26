@@ -25,11 +25,13 @@ use DSKZPT\Twitter2News\Service\SlugService;
 use GeorgRinger\News\Domain\Model\Category;
 use GeorgRinger\News\Domain\Repository\CategoryRepository;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
@@ -51,6 +53,10 @@ class ImportTweetsCommand extends Command
     private SlugService $slugService;
 
     private string $username = '';
+
+    private LoggerInterface $logger;
+
+    private SymfonyStyle $io;
 
     /**
      * @var \stdClass[]
@@ -74,13 +80,15 @@ class ImportTweetsCommand extends Command
         CategoryRepository $categoryRepository,
         PersistenceManagerInterface $persistenceManager,
         EventDispatcherInterface $eventDispatcher,
-        SlugService $slugService
+        SlugService $slugService,
+        LoggerInterface $logger
     ) {
         $this->newsRepository = $newsRepository;
         $this->categoryRepository = $categoryRepository;
         $this->persistenceManager = $persistenceManager;
         $this->eventDispatcher = $eventDispatcher;
         $this->slugService = $slugService;
+        $this->logger = $logger;
 
         /** @var ExtensionConfiguration $extensionConfiguration */
         $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
@@ -102,6 +110,7 @@ class ImportTweetsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $this->io = new SymfonyStyle($input, $output);
         $this->username = $input->getArgument('username');
         $limit = (int)$input->getArgument('limit');
         $storagePid = $input->getArgument('storagePid');
@@ -167,9 +176,19 @@ class ImportTweetsCommand extends Command
         foreach ($this->categories as $categoryUid) {
             $category = $this->categoryRepository->findByUid((int)$categoryUid);
 
-            if ($category instanceof Category) {
-                $newsTweet->addCategory($category);
+            if (! $category instanceof Category) {
+                $message = sprintf(
+                    'Category with Uid %s not found.',
+                    $categoryUid
+                );
+
+                $this->logger->warning($message);
+                $this->io->warning($message);
+
+                continue;
             }
+
+            $newsTweet->addCategory($category);
         }
         // endregion
 
