@@ -35,6 +35,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use TYPO3\CMS\Core\Configuration\ExtensionConfiguration;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Http\RequestFactory;
 use TYPO3\CMS\Core\Resource\File;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -75,13 +76,16 @@ class ImportTweetsCommand extends Command
      */
     private array $categories = [];
 
+    private RequestFactory $requestFactory;
+
     public function __construct(
         NewsTweetRepository $newsRepository,
         CategoryRepository $categoryRepository,
         PersistenceManagerInterface $persistenceManager,
         EventDispatcherInterface $eventDispatcher,
         SlugService $slugService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        RequestFactory $requestFactory
     ) {
         $this->newsRepository = $newsRepository;
         $this->categoryRepository = $categoryRepository;
@@ -89,6 +93,7 @@ class ImportTweetsCommand extends Command
         $this->eventDispatcher = $eventDispatcher;
         $this->slugService = $slugService;
         $this->logger = $logger;
+        $this->requestFactory = $requestFactory;
 
         /** @var ExtensionConfiguration $extensionConfiguration */
         $extensionConfiguration = GeneralUtility::makeInstance(ExtensionConfiguration::class);
@@ -294,8 +299,9 @@ class ImportTweetsCommand extends Command
         $directory = str_replace('1:', 'uploads', $directory);
         $filePath = sprintf('%s/%s.%s', $directory, md5($fileUrl), $fileExtension);
 
-        $data = file_get_contents($fileUrl);
-        file_put_contents($filePath, $data);
+        $response = $this->requestFactory->request($fileUrl);
+        $imageData = $response->getBody()->getContents();
+        file_put_contents($filePath, $imageData);
 
         /** @var ResourceFactory $resourceFactory */
         $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
